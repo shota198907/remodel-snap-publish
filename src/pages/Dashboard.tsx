@@ -1,50 +1,200 @@
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Clock, Calendar, User, MessageCircle, Image, Plus, Edit } from "lucide-react";
+import { Camera, Clock, Calendar, User, Edit, Eye, Share2, Trash2, Plus, Search } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import CaseUploadModal from '@/components/CaseUploadModal';
 
 const Dashboard = () => {
-  const [draftCases] = useState([
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
+
+  // サンプル事例データ（公開済み・下書き・アラーム設定済み）
+  const [cases, setCases] = useState([
     {
       id: 1,
-      title: "キッチンリフォーム：築30年マンション改修",
+      title: "キッチン全面リフォーム：機能性とデザイン性を両立",
+      company: "東京リフォーム株式会社",
+      location: "東京都世田谷区",
       category: "キッチン",
-      status: "下書き",
-      reminderDate: "2024-01-20",
-      reminderTime: "09:00",
-      beforeImages: 3,
-      afterImages: 0,
-      createdAt: "2024-01-15"
+      beforeImage: "/placeholder.svg",
+      afterImage: "/placeholder.svg",
+      description: "築30年のマンションキッチンを最新設備で一新。収納力アップと清掃性を重視した設計。",
+      workPeriod: "5日間",
+      status: "published",
+      createdAt: "2024-01-15",
+      publishedAt: "2024-01-20"
     },
     {
       id: 2,
-      title: "浴室バリアフリー改修工事",
+      title: "和室から洋室への大変身：モダンリビング空間",
+      company: "東京リフォーム株式会社",
+      location: "大阪府大阪市",
+      category: "居室",
+      beforeImage: "/placeholder.svg",
+      afterImage: null,
+      description: "伝統的な和室を現代的な洋室に変更。フローリング・クロス・照明すべて新調予定。",
+      workPeriod: "7日間",
+      status: "scheduled",
+      createdAt: "2024-01-10",
+      scheduledDate: "2024-01-25",
+      reminderTime: "09:00"
+    },
+    {
+      id: 3,
+      title: "バリアフリー浴室リフォーム：安全性と快適性を追求",
+      company: "東京リフォーム株式会社",
+      location: "福岡県福岡市",
       category: "浴室",
-      status: "リマインダー設定済み",
-      reminderDate: "2024-01-18",
-      reminderTime: "10:00",
-      beforeImages: 2,
-      afterImages: 0,
-      createdAt: "2024-01-12"
+      beforeImage: "/placeholder.svg",
+      afterImage: "/placeholder.svg",
+      description: "高齢者対応のバリアフリー浴室。手すり・段差解消・滑り止め加工を施工完了。内容確認中。",
+      workPeriod: "4日間",
+      status: "draft",
+      createdAt: "2024-01-08"
     }
   ]);
 
-  const [publishedCases] = useState([
-    {
-      id: 3,
-      title: "和室から洋室への大変身：モダンリビング空間",
-      category: "居室",
-      status: "公開済み",
-      beforeImages: 2,
-      afterImages: 3,
-      views: 245,
-      likes: 12,
-      createdAt: "2024-01-10"
+  const filteredCases = cases.filter(caseItem =>
+    caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    caseItem.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handlePublish = (id: number) => {
+    setCases(prev => prev.map(c => 
+      c.id === id 
+        ? { ...c, status: 'published', publishedAt: new Date().toISOString().split('T')[0] }
+        : c
+    ));
+    toast({
+      title: "事例を公開しました",
+      description: "SNSへの投稿も完了しました",
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    setCases(prev => prev.filter(c => c.id !== id));
+    toast({
+      title: "事例を削除しました",
+      description: "削除した事例は復元できません",
+    });
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'published':
+        return <Badge className="bg-green-500">公開済み</Badge>;
+      case 'draft':
+        return <Badge variant="secondary">下書き</Badge>;
+      case 'scheduled':
+        return <Badge className="bg-blue-500">アラーム設定済み</Badge>;
+      default:
+        return null;
     }
-  ]);
+  };
+
+  const publishedCases = filteredCases.filter(c => c.status === 'published');
+  const draftCases = filteredCases.filter(c => c.status === 'draft');
+  const scheduledCases = filteredCases.filter(c => c.status === 'scheduled');
+
+  const renderCaseCard = (caseItem: any, showActions = true) => (
+    <Card key={caseItem.id} className="overflow-hidden hover:shadow-lg transition-all duration-300">
+      <div className="relative">
+        <div className="grid grid-cols-2 h-32">
+          <div className="relative overflow-hidden">
+            <img 
+              src={caseItem.beforeImage} 
+              alt="施工前" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-2 left-2">
+              <Badge variant="secondary" className="text-xs">施工前</Badge>
+            </div>
+          </div>
+          <div className="relative overflow-hidden">
+            {caseItem.afterImage ? (
+              <img 
+                src={caseItem.afterImage} 
+                alt="施工後" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <Camera className="w-6 h-6 text-gray-400" />
+              </div>
+            )}
+            <div className="absolute top-2 left-2">
+              <Badge className="text-xs bg-reform-orange-500">
+                {caseItem.afterImage ? '施工後' : '未撮影'}
+              </Badge>
+            </div>
+          </div>
+        </div>
+        <div className="absolute top-2 right-2 flex flex-col space-y-1">
+          <Badge className="bg-reform-blue-500 text-xs">
+            {caseItem.category}
+          </Badge>
+          {getStatusBadge(caseItem.status)}
+        </div>
+      </div>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg line-clamp-2">
+          {caseItem.title}
+        </CardTitle>
+        <CardDescription className="flex items-center justify-between text-sm">
+          <span className="flex items-center">
+            <Calendar className="w-3 h-3 mr-1" />
+            工期: {caseItem.workPeriod}
+          </span>
+          <span>{caseItem.location}</span>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+          {caseItem.description}
+        </p>
+        {caseItem.status === 'scheduled' && (
+          <div className="mb-3 p-2 bg-blue-50 rounded-lg">
+            <p className="text-xs text-blue-600 flex items-center">
+              <Clock className="w-3 h-3 mr-1" />
+              リマインダー: {caseItem.scheduledDate} {caseItem.reminderTime}
+            </p>
+          </div>
+        )}
+        {showActions && (
+          <div className="flex space-x-2">
+            {caseItem.status === 'draft' && caseItem.afterImage && (
+              <Button 
+                size="sm" 
+                onClick={() => handlePublish(caseItem.id)}
+                className="flex-1 bg-green-500 hover:bg-green-600"
+              >
+                <Share2 className="w-3 h-3 mr-1" />
+                公開
+              </Button>
+            )}
+            <Button size="sm" variant="outline" className="flex-1">
+              <Edit className="w-3 h-3 mr-1" />
+              編集
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => handleDelete(caseItem.id)}
+              className="text-red-500 hover:text-red-600"
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-reform-blue-50 to-reform-orange-50">
@@ -57,182 +207,135 @@ const Dashboard = () => {
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">ダッシュボード</h1>
+                <h1 className="text-xl font-bold text-gray-900">マイページ</h1>
                 <p className="text-xs text-gray-500">東京リフォーム株式会社</p>
               </div>
             </div>
-            <Button className="bg-reform-orange-500 hover:bg-reform-orange-600">
-              <Plus className="w-4 h-4 mr-2" />
-              新規投稿
-            </Button>
+            <div className="flex items-center space-x-3">
+              <Button 
+                onClick={() => setIsUploadOpen(true)}
+                className="bg-reform-orange-500 hover:bg-reform-orange-600 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                新規事例
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
+      {/* メインコンテンツ */}
       <main className="container mx-auto px-4 py-8">
-        {/* 統計カード */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* 統計情報 */}
+        <div className="grid md:grid-cols-4 gap-4 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">総投稿数</CardTitle>
-              <Camera className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-muted-foreground">+1 from last month</p>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">公開済み事例</p>
+                  <p className="text-2xl font-bold text-green-600">{publishedCases.length}</p>
+                </div>
+                <Eye className="w-8 h-8 text-green-500" />
+              </div>
             </CardContent>
           </Card>
-          
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">下書き</CardTitle>
-              <Edit className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">2</div>
-              <p className="text-xs text-muted-foreground">リマインダー設定済み</p>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">下書き</p>
+                  <p className="text-2xl font-bold text-gray-600">{draftCases.length}</p>
+                </div>
+                <Edit className="w-8 h-8 text-gray-500" />
+              </div>
             </CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">総閲覧数</CardTitle>
-              <User className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">245</div>
-              <p className="text-xs text-muted-foreground">+18% from last month</p>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">アラーム設定済み</p>
+                  <p className="text-2xl font-bold text-blue-600">{scheduledCases.length}</p>
+                </div>
+                <Clock className="w-8 h-8 text-blue-500" />
+              </div>
             </CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">お問い合わせ</CardTitle>
-              <MessageCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">5</div>
-              <p className="text-xs text-muted-foreground">今月の問い合わせ数</p>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">今月の問い合わせ</p>
+                  <p className="text-2xl font-bold text-reform-orange-600">12</p>
+                </div>
+                <User className="w-8 h-8 text-reform-orange-500" />
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* タブコンテンツ */}
-        <Tabs defaultValue="drafts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="drafts">下書き・進行中</TabsTrigger>
-            <TabsTrigger value="published">公開済み</TabsTrigger>
-          </TabsList>
+        {/* 検索 */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="事例を検索..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
 
-          <TabsContent value="drafts" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">下書き・進行中の事例</h3>
-              <Badge variant="secondary">{draftCases.length}件</Badge>
-            </div>
-            
-            <div className="grid gap-4">
-              {draftCases.map((caseItem) => (
-                <Card key={caseItem.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{caseItem.title}</CardTitle>
-                        <CardDescription className="flex items-center space-x-4 mt-2">
-                          <Badge className="bg-reform-blue-500">{caseItem.category}</Badge>
-                          <span className="text-sm">作成日: {caseItem.createdAt}</span>
-                        </CardDescription>
-                      </div>
-                      <Badge variant={caseItem.status === "下書き" ? "secondary" : "default"}>
-                        {caseItem.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="flex items-center space-x-2">
-                        <Image className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm">施工前: {caseItem.beforeImages}枚</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Image className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-400">施工後: {caseItem.afterImages}枚</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Clock className="w-4 h-4 text-reform-orange-500" />
-                        <span className="text-sm">リマインダー: {caseItem.reminderDate} {caseItem.reminderTime}</span>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2 mt-4">
-                      <Button variant="outline" size="sm">
-                        <Edit className="w-4 h-4 mr-2" />
-                        編集
-                      </Button>
-                      <Button variant="outline" size="sm" disabled>
-                        <Camera className="w-4 h-4 mr-2" />
-                        アフター写真追加
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+        {/* 事例管理タブ */}
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="all">すべて ({filteredCases.length})</TabsTrigger>
+            <TabsTrigger value="published">公開済み ({publishedCases.length})</TabsTrigger>
+            <TabsTrigger value="draft">下書き ({draftCases.length})</TabsTrigger>
+            <TabsTrigger value="scheduled">アラーム設定済み ({scheduledCases.length})</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="all" className="mt-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCases.map(caseItem => renderCaseCard(caseItem))}
             </div>
           </TabsContent>
-
-          <TabsContent value="published" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">公開済み事例</h3>
-              <Badge variant="secondary">{publishedCases.length}件</Badge>
+          
+          <TabsContent value="published" className="mt-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {publishedCases.map(caseItem => renderCaseCard(caseItem))}
             </div>
-            
-            <div className="grid gap-4">
-              {publishedCases.map((caseItem) => (
-                <Card key={caseItem.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{caseItem.title}</CardTitle>
-                        <CardDescription className="flex items-center space-x-4 mt-2">
-                          <Badge className="bg-reform-blue-500">{caseItem.category}</Badge>
-                          <span className="text-sm">公開日: {caseItem.createdAt}</span>
-                        </CardDescription>
-                      </div>
-                      <Badge className="bg-green-500">公開済み</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="flex items-center space-x-2">
-                        <Image className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm">施工前: {caseItem.beforeImages}枚</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Image className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm">施工後: {caseItem.afterImages}枚</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <User className="w-4 h-4 text-reform-blue-500" />
-                        <span className="text-sm">閲覧: {caseItem.views}回</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <MessageCircle className="w-4 h-4 text-reform-orange-500" />
-                        <span className="text-sm">いいね: {caseItem.likes}件</span>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2 mt-4">
-                      <Button variant="outline" size="sm">
-                        詳細表示
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        SNS再投稿
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+          </TabsContent>
+          
+          <TabsContent value="draft" className="mt-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {draftCases.map(caseItem => renderCaseCard(caseItem))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="scheduled" className="mt-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {scheduledCases.map(caseItem => renderCaseCard(caseItem))}
             </div>
           </TabsContent>
         </Tabs>
+
+        {filteredCases.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Camera className="w-8 h-8 text-gray-400" />
+            </div>
+            <p className="text-gray-500">事例が見つかりませんでした。</p>
+          </div>
+        )}
       </main>
+
+      {/* 事例投稿モーダル */}
+      <CaseUploadModal 
+        isOpen={isUploadOpen} 
+        onClose={() => setIsUploadOpen(false)}
+      />
     </div>
   );
 };

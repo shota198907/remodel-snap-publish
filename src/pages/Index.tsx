@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Camera, Clock, Calendar, User, MessageCircle, Image, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 import LoginModal from '@/components/LoginModal';
 import CompanyRegistrationModal from '@/components/CompanyRegistrationModal';
 import CaseUploadModal from '@/components/CaseUploadModal';
@@ -15,6 +16,7 @@ const Index = () => {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   // サンプル事例データ
@@ -71,6 +73,10 @@ const Index = () => {
   const handleLoginClick = () => {
     setIsRegisterOpen(false);
     setIsLoginOpen(true);
+  };
+
+  const handleLoginSuccess = () => {
+    navigate('/dashboard');
   };
 
   return (
@@ -296,11 +302,13 @@ const Index = () => {
         isOpen={isLoginOpen} 
         onClose={() => setIsLoginOpen(false)}
         onRegisterClick={handleRegisterClick}
+        onLoginSuccess={handleLoginSuccess}
       />
       <CompanyRegistrationModal 
         isOpen={isRegisterOpen} 
         onClose={() => setIsRegisterOpen(false)}
         onLoginClick={handleLoginClick}
+        onRegisterSuccess={handleLoginSuccess}
       />
       <CaseUploadModal 
         isOpen={isUploadOpen} 

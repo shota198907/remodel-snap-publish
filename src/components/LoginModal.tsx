@@ -10,9 +10,10 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRegisterClick: () => void;
+  onLoginSuccess?: () => void;
 }
 
-const LoginModal = ({ isOpen, onClose, onRegisterClick }: LoginModalProps) => {
+const LoginModal = ({ isOpen, onClose, onRegisterClick, onLoginSuccess }: LoginModalProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +31,7 @@ const LoginModal = ({ isOpen, onClose, onRegisterClick }: LoginModalProps) => {
           description: `${email} でログインしました`,
         });
         onClose();
+        onLoginSuccess?.();
       } else {
         toast({
           title: "エラー",
