@@ -1,0 +1,28 @@
+
+{
+  "name": "ReformCases - リフォーム事例ポータル",
+  "short_name": "ReformCases",
+  "description": "現場写真からAI自動生成でリフォーム事例をかんたん公開",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/placeholder.svg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/placeholder.svg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["business", "productivity", "photo"],
+  "lang": "ja",
+  "dir": "ltr"
+}

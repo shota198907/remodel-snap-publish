@@ -1,24 +1,56 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>remodel-snap-publish</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+    <title>ReformCases - リフォーム事例ポータル</title>
+    <meta name="description" content="現場写真からAI自動生成でリフォーム事例をかんたん公開。プッシュ通知でアフター写真撮影忘れを防止。" />
+    <meta name="author" content="ReformCases" />
 
-    <meta property="og:title" content="remodel-snap-publish" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0ea5e9" />
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="ReformCases" />
+    <link rel="apple-touch-icon" href="/placeholder.svg" />
+
+    <!-- OG Tags -->
+    <meta property="og:title" content="ReformCases - リフォーム事例ポータル" />
+    <meta property="og:description" content="現場写真からAI自動生成でリフォーム事例をかんたん公開" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:site" content="@reform_cases" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
