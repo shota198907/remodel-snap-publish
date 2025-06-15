@@ -110,7 +110,28 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[95vh] overflow-hidden p-0">
+      <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden p-0 relative">
+        {/* フローティングボタン - 上部に配置 */}
+        <div className="absolute top-4 right-4 z-10 flex gap-2">
+          <Button 
+            onClick={handlePublish}
+            disabled={isLoading || !formData.title || formData.beforeImages.length === 0}
+            size="sm"
+            className="rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            公開
+          </Button>
+          <Button 
+            onClick={handleSaveDraft}
+            disabled={isLoading}
+            variant="outline"
+            size="sm"
+            className="rounded-full border-2 border-gray-400 hover:border-gray-600 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            下書き
+          </Button>
+        </div>
+
         <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle className="text-xl font-bold text-center">新規事例作成</DialogTitle>
         </DialogHeader>
@@ -171,12 +192,15 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
                   id="beforeImages"
                 />
               </div>
-              <div 
-                className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-blue-500 transition-colors"
-                onClick={() => document.getElementById('beforeImages')?.click()}
-              >
-                <Plus className="w-5 h-5 text-gray-600" />
-              </div>
+              {/* プラスボタン - 写真が1枚以上ある時のみ表示 */}
+              {formData.beforeImages.length > 0 && (
+                <div 
+                  className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-blue-500 transition-colors"
+                  onClick={() => document.getElementById('beforeImages')?.click()}
+                >
+                  <Plus className="w-5 h-5 text-gray-600" />
+                </div>
+              )}
             </div>
 
             {/* 施工後 */}
@@ -216,12 +240,15 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
                   id="afterImages"
                 />
               </div>
-              <div 
-                className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-green-500 transition-colors"
-                onClick={() => document.getElementById('afterImages')?.click()}
-              >
-                <Plus className="w-5 h-5 text-gray-600" />
-              </div>
+              {/* プラスボタン - 写真が1枚以上ある時のみ表示 */}
+              {formData.afterImages.length > 0 && (
+                <div 
+                  className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-green-500 transition-colors"
+                  onClick={() => document.getElementById('afterImages')?.click()}
+                >
+                  <Plus className="w-5 h-5 text-gray-600" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -270,30 +297,6 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
               className="w-full border-2 border-gray-300 rounded-xl bg-gray-50 resize-none text-center pt-4"
               disabled={isLoading}
             />
-          </div>
-
-          {/* アクションボタン */}
-          <div className="border-2 border-dashed border-gray-400 rounded-xl p-4">
-            <p className="text-center text-sm text-gray-600 mb-4">新規投稿ページだけのフローティングボタン</p>
-            <div className="grid grid-cols-2 gap-4">
-              <Button 
-                onClick={handlePublish}
-                disabled={isLoading || !formData.title || formData.beforeImages.length === 0}
-                className="h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                公開
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button 
-                onClick={handleSaveDraft}
-                disabled={isLoading}
-                variant="outline"
-                className="h-12 rounded-full border-2 border-gray-400 hover:border-gray-600 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                下書き保存
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
           </div>
         </div>
       </DialogContent>
