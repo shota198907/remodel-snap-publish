@@ -117,67 +117,78 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-md h-[90vh] max-h-[600px] overflow-hidden p-0 relative z-50">
-        <ActionButtons
-          onPublish={handlePublish}
-          onSaveDraft={handleSaveDraft}
-          isLoading={isLoading}
-          canPublish={canPublish}
-        />
+      <DialogContent 
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        style={{
+          position: 'fixed',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 100
+        }}
+      >
+        <div className="w-full max-w-md h-[90vh] max-h-[600px] bg-white rounded-lg shadow-xl overflow-hidden relative">
+          <ActionButtons
+            onPublish={handlePublish}
+            onSaveDraft={handleSaveDraft}
+            isLoading={isLoading}
+            canPublish={canPublish}
+          />
 
-        {/* Header */}
-        <DialogHeader className="p-3 pb-2 border-b bg-white relative z-10">
-          <DialogTitle className="text-lg font-bold text-center pr-16">新規事例作成</DialogTitle>
-        </DialogHeader>
+          {/* Header */}
+          <DialogHeader className="p-3 pb-2 border-b bg-white relative z-10">
+            <DialogTitle className="text-lg font-bold text-center pr-16">新規事例作成</DialogTitle>
+          </DialogHeader>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-3 space-y-4">
-            {/* Category Selection */}
-            <div>
-              <Select onValueChange={(value) => handleInputChange('category', value)} value={formData.category}>
-                <SelectTrigger className="w-full h-12 text-center border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 focus:border-blue-400 focus:bg-blue-50">
-                  <SelectValue placeholder="カテゴリーを選択" />
-                </SelectTrigger>
-                <SelectContent className="z-50">
-                  <SelectItem value="キッチン">キッチン</SelectItem>
-                  <SelectItem value="浴室">浴室</SelectItem>
-                  <SelectItem value="居室">居室</SelectItem>
-                  <SelectItem value="外壁">外壁</SelectItem>
-                  <SelectItem value="その他">その他</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto h-full">
+            <div className="p-3 space-y-4">
+              {/* Category Selection */}
+              <div>
+                <Select onValueChange={(value) => handleInputChange('category', value)} value={formData.category}>
+                  <SelectTrigger className="w-full h-12 text-center border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 focus:border-blue-400 focus:bg-blue-50">
+                    <SelectValue placeholder="カテゴリーを選択" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[110]">
+                    <SelectItem value="キッチン">キッチン</SelectItem>
+                    <SelectItem value="浴室">浴室</SelectItem>
+                    <SelectItem value="居室">居室</SelectItem>
+                    <SelectItem value="外壁">外壁</SelectItem>
+                    <SelectItem value="その他">その他</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <ImageUploadSection
+                beforeImages={formData.beforeImages}
+                afterImages={formData.afterImages}
+                onFileUpload={handleFileUpload}
+                isLoading={isLoading}
+              />
+
+              <WorkOrderSection
+                workOrder={formData.workOrder}
+                onFileUpload={handleFileUpload}
+                isLoading={isLoading}
+              />
+
+              <ReminderSection
+                scheduledDate={formData.scheduledDate}
+                reminderTime={formData.reminderTime}
+                onInputChange={handleInputChange}
+                isLoading={isLoading}
+              />
+
+              <FormFields
+                title={formData.title}
+                description={formData.description}
+                onInputChange={handleInputChange}
+                isLoading={isLoading}
+              />
+
+              {/* Bottom padding for scroll */}
+              <div className="h-4"></div>
             </div>
-
-            <ImageUploadSection
-              beforeImages={formData.beforeImages}
-              afterImages={formData.afterImages}
-              onFileUpload={handleFileUpload}
-              isLoading={isLoading}
-            />
-
-            <WorkOrderSection
-              workOrder={formData.workOrder}
-              onFileUpload={handleFileUpload}
-              isLoading={isLoading}
-            />
-
-            <ReminderSection
-              scheduledDate={formData.scheduledDate}
-              reminderTime={formData.reminderTime}
-              onInputChange={handleInputChange}
-              isLoading={isLoading}
-            />
-
-            <FormFields
-              title={formData.title}
-              description={formData.description}
-              onInputChange={handleInputChange}
-              isLoading={isLoading}
-            />
-
-            {/* Bottom padding for scroll */}
-            <div className="h-4"></div>
           </div>
         </div>
       </DialogContent>
