@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Building, Star, MapPin, Phone, Mail, Camera, Users, Award, ArrowRight, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 const Portal = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('すべて');
+  const [selectedArea, setSelectedArea] = useState('');
 
   // サンプルリフォーム事例データ
   const reformCases = [
@@ -104,19 +105,38 @@ const Portal = () => {
   ];
 
   const categories = ["すべて", "キッチン", "バスルーム", "リビング", "外装", "内装"];
+  const areas = [
+    "すべてのエリア",
+    "北海道",
+    "東京都",
+    "神奈川県", 
+    "千葉県",
+    "埼玉県",
+    "大阪府",
+    "京都府",
+    "兵庫県",
+    "愛知県",
+    "福岡県"
+  ];
 
-  const filteredCases = reformCases.filter(caseItem =>
-    (selectedCategory === "すべて" || caseItem.category === selectedCategory) &&
-    (caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     caseItem.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     caseItem.location.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredCases = reformCases.filter(caseItem => {
+    const matchesCategory = selectedCategory === "すべて" || caseItem.category === selectedCategory;
+    const matchesArea = !selectedArea || selectedArea === "すべてのエリア" || 
+                       caseItem.location.includes(selectedArea.replace("都", "").replace("府", "").replace("県", ""));
+    const matchesSearch = caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         caseItem.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         caseItem.location.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesArea && matchesSearch;
+  });
 
-  const filteredCompanies = companies.filter(company =>
-    company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.specialties.some(specialty => specialty.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredCompanies = companies.filter(company => {
+    const matchesArea = !selectedArea || selectedArea === "すべてのエリア" || 
+                       company.location.includes(selectedArea.replace("都", "").replace("府", "").replace("県", ""));
+    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         company.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         company.specialties.some(specialty => specialty.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesArea && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -125,51 +145,72 @@ const Portal = () => {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&h=1080&fit=crop')] bg-cover bg-center opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-600/60"></div>
         
-        <div className="relative container mx-auto px-4 py-16 md:py-24">
+        <div className="relative container mx-auto px-4 py-12 md:py-20">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 leading-tight">
               信頼できる施工会社を探す
             </h1>
-            <p className="text-lg md:text-xl mb-8 text-blue-100 leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 text-blue-100 leading-relaxed">
               全国の優良リフォーム会社から、あなたにぴったりの会社を見つけましょう
             </p>
             
-            {/* 検索バー */}
-            <div className="max-w-2xl mx-auto">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
-                <Input
-                  placeholder="会社名・地域で検索..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-14 h-14 text-lg border-0 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg focus:ring-2 focus:ring-white/50"
-                />
-                <Button className="absolute right-2 top-2 h-10 px-6 bg-blue-600 hover:bg-blue-700 rounded-lg">
-                  検索
-                </Button>
+            {/* 検索セクション - 改良版 */}
+            <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-4">
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">エリアから探す</label>
+                  <Select value={selectedArea} onValueChange={setSelectedArea}>
+                    <SelectTrigger className="h-12 bg-white border-gray-200">
+                      <SelectValue placeholder="エリアを選択" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {areas.map((area) => (
+                        <SelectItem key={area} value={area}>
+                          {area}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="relative md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">キーワード検索</label>
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Input
+                      placeholder="会社名・工事内容で検索..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-12 h-12 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
               </div>
+              <Button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
+                <Search className="w-5 h-5 mr-2" />
+                検索する
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
       {/* メインコンテンツ */}
-      <main className="container mx-auto px-4 py-12">
-        <Tabs defaultValue="cases" className="space-y-8">
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <Tabs defaultValue="cases" className="space-y-6 md:space-y-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <TabsList className="grid w-full sm:w-auto grid-cols-2 h-12 bg-white shadow-sm border">
-              <TabsTrigger value="cases" className="flex items-center space-x-2 text-base">
-                <Camera className="w-5 h-5" />
+              <TabsTrigger value="cases" className="flex items-center space-x-2 text-sm md:text-base">
+                <Camera className="w-4 md:w-5 h-4 md:h-5" />
                 <span>施工事例一覧</span>
               </TabsTrigger>
-              <TabsTrigger value="companies" className="flex items-center space-x-2 text-base">
-                <Building className="w-5 h-5" />
+              <TabsTrigger value="companies" className="flex items-center space-x-2 text-sm md:text-base">
+                <Building className="w-4 md:w-5 h-4 md:h-5" />
                 <span>施工会社一覧</span>
               </TabsTrigger>
             </TabsList>
             
             <div className="text-sm text-gray-600">
-              <span className="font-medium">6件</span>の事例が見つかりました
+              <span className="font-medium">{filteredCases.length + filteredCompanies.length}件</span>が見つかりました
             </div>
           </div>
 
@@ -182,7 +223,7 @@ const Portal = () => {
                   variant={selectedCategory === category ? "default" : "outline"}
                   onClick={() => setSelectedCategory(category)}
                   size="sm"
-                  className={`rounded-full ${
+                  className={`rounded-full text-xs md:text-sm ${
                     selectedCategory === category
                       ? "bg-blue-600 hover:bg-blue-700"
                       : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
@@ -194,11 +235,11 @@ const Portal = () => {
             </div>
 
             {/* 事例一覧 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {filteredCases.map((caseItem) => (
                 <Card key={caseItem.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-0 shadow-md bg-white">
                   <div className="relative">
-                    <div className="grid grid-cols-2 h-48">
+                    <div className="grid grid-cols-2 h-40 md:h-48">
                       <div className="relative">
                         <img src={caseItem.beforeImage} alt="施工前" className="w-full h-full object-cover" />
                         <div className="absolute bottom-2 left-2">
@@ -217,33 +258,33 @@ const Portal = () => {
                       </div>
                     </div>
                     <div className="absolute top-3 right-3">
-                      <Badge className="bg-blue-600 text-white border-0 font-medium">
+                      <Badge className="bg-blue-600 text-white border-0 font-medium text-xs">
                         {caseItem.category}
                       </Badge>
                     </div>
                   </div>
                   
-                  <CardContent className="p-5">
-                    <h3 className="font-bold text-lg mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                  <CardContent className="p-4 md:p-5">
+                    <h3 className="font-bold text-base md:text-lg mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
                       {caseItem.title}
                     </h3>
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                       {caseItem.description}
                     </p>
                     
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <div className="flex items-center justify-between text-xs md:text-sm text-gray-500 mb-3">
                       <span className="flex items-center font-medium">
-                        <Building className="w-4 h-4 mr-1" />
-                        {caseItem.company}
+                        <Building className="w-3 md:w-4 h-3 md:h-4 mr-1" />
+                        <span className="truncate">{caseItem.company}</span>
                       </span>
                       <span className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {caseItem.location}
+                        <MapPin className="w-3 md:w-4 h-3 md:h-4 mr-1" />
+                        <span className="truncate">{caseItem.location}</span>
                       </span>
                     </div>
                     
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
+                      <div className="flex items-center space-x-3 md:space-x-4 text-xs text-gray-500">
                         <span className="flex items-center">
                           <Camera className="w-3 h-3 mr-1" />
                           {caseItem.views}
@@ -252,10 +293,12 @@ const Portal = () => {
                           ♥ {caseItem.likes}
                         </span>
                       </div>
-                      <Button variant="outline" size="sm" className="group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all">
-                        詳細を見る
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                      </Button>
+                      <Link to={`/portal/case/${caseItem.id}`}>
+                        <Button variant="outline" size="sm" className="group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all text-xs md:text-sm">
+                          詳細を見る
+                          <ArrowRight className="w-3 md:w-4 h-3 md:h-4 ml-1" />
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -265,25 +308,25 @@ const Portal = () => {
 
           <TabsContent value="companies" className="space-y-6">
             <div className="text-sm text-gray-600 mb-6">
-              <span className="font-medium">4社</span>が見つかりました
+              <span className="font-medium">{filteredCompanies.length}社</span>が見つかりました
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {filteredCompanies.map((company) => (
                 <Card key={company.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-0 shadow-md bg-white">
-                  <div className="h-40 relative">
+                  <div className="h-32 md:h-40 relative">
                     <img src={company.image} alt={company.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                   </div>
                   
-                  <CardContent className="p-5">
+                  <CardContent className="p-4 md:p-5">
                     <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-bold text-lg group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-bold text-base md:text-lg group-hover:text-blue-600 transition-colors line-clamp-1">
                         {company.name}
                       </h3>
                       <div className="flex items-center space-x-1 text-yellow-500">
-                        <Star className="w-4 h-4 fill-current" />
-                        <span className="text-sm font-medium text-gray-700">
+                        <Star className="w-3 md:w-4 h-3 md:h-4 fill-current" />
+                        <span className="text-xs md:text-sm font-medium text-gray-700">
                           {company.rating} ({company.reviewCount}件)
                         </span>
                       </div>
@@ -301,29 +344,31 @@ const Portal = () => {
                       ))}
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div className="flex items-center justify-between text-xs md:text-sm text-gray-500 mb-4">
                       <span className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {company.location}
+                        <MapPin className="w-3 md:w-4 h-3 md:h-4 mr-1" />
+                        <span className="truncate">{company.location}</span>
                       </span>
                       <span className="flex items-center">
-                        <Camera className="w-4 h-4 mr-1" />
-                        {company.caseCount}件の施工事例
+                        <Camera className="w-3 md:w-4 h-3 md:h-4 mr-1" />
+                        {company.caseCount}件
                       </span>
                     </div>
                     
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Phone className="w-4 h-4 mr-1" />
+                      <Button variant="outline" size="sm" className="flex-1 text-xs">
+                        <Phone className="w-3 md:w-4 h-3 md:h-4 mr-1" />
                         電話
                       </Button>
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Mail className="w-4 h-4 mr-1" />
+                      <Button variant="outline" size="sm" className="flex-1 text-xs">
+                        <Mail className="w-3 md:w-4 h-3 md:h-4 mr-1" />
                         メール
                       </Button>
-                      <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                        詳細を見る
-                      </Button>
+                      <Link to={`/portal/company/${company.id}`} className="flex-1">
+                        <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-xs">
+                          詳細を見る
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -333,7 +378,7 @@ const Portal = () => {
         </Tabs>
 
         {/* ページネーション */}
-        <div className="flex justify-center mt-12">
+        <div className="flex justify-center mt-8 md:mt-12">
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" disabled>
               前へ
@@ -355,17 +400,17 @@ const Portal = () => {
       </main>
 
       {/* フッター */}
-      <footer className="bg-gray-900 text-white py-12 mt-16">
+      <footer className="bg-gray-900 text-white py-8 md:py-12 mt-12 md:mt-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4">リフォームポータル</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="col-span-2 md:col-span-1">
+              <h3 className="font-bold text-base md:text-lg mb-3 md:mb-4">リフォームポータル</h3>
               <p className="text-gray-400 text-sm">
                 全国の優良リフォーム会社と施工事例をご紹介
               </p>
             </div>
             <div>
-              <h4 className="font-medium mb-3">サービス</h4>
+              <h4 className="font-medium mb-3 text-sm md:text-base">サービス</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><Link to="/portal" className="hover:text-white transition-colors">事例検索</Link></li>
                 <li><Link to="/portal" className="hover:text-white transition-colors">会社検索</Link></li>
@@ -373,7 +418,7 @@ const Portal = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-medium mb-3">カテゴリ</h4>
+              <h4 className="font-medium mb-3 text-sm md:text-base">カテゴリ</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>キッチン</li>
                 <li>バスルーム</li>
@@ -382,14 +427,14 @@ const Portal = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-medium mb-3">お問い合わせ</h4>
+              <h4 className="font-medium mb-3 text-sm md:text-base">お問い合わせ</h4>
               <div className="space-y-2 text-sm text-gray-400">
                 <p>support@reform-portal.com</p>
                 <p>03-1234-5678</p>
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
+          <div className="border-t border-gray-700 mt-6 md:mt-8 pt-6 md:pt-8 text-center text-sm text-gray-400">
             <p>© 2024 リフォームポータル. All rights reserved.</p>
           </div>
         </div>
