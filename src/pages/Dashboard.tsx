@@ -118,7 +118,7 @@ const Dashboard = () => {
   const renderCaseCard = (caseItem: Case, showActions = true) => (
     <Card key={caseItem.id} className="overflow-hidden hover:shadow-lg transition-all duration-300">
       <div className="relative">
-        <div className="grid grid-cols-2 h-32">
+        <div className="grid grid-cols-2 h-40 sm:h-32">
           <div className="relative overflow-hidden">
             <img 
               src={caseItem.beforeImage} 
@@ -142,33 +142,32 @@ const Dashboard = () => {
               </div>
             )}
             <div className="absolute top-2 left-2">
-              <Badge className="text-xs bg-reform-orange-500">
+              <Badge className="text-xs bg-orange-500">
                 {caseItem.afterImage ? '施工後' : '未撮影'}
               </Badge>
             </div>
           </div>
         </div>
         <div className="absolute top-2 right-2 flex flex-col space-y-1">
-          <Badge className="bg-reform-blue-500 text-xs">
+          <Badge className="bg-blue-600 text-xs">
             {caseItem.category}
           </Badge>
           {getStatusBadge(caseItem.status)}
         </div>
       </div>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg line-clamp-2">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base sm:text-lg line-clamp-2 leading-tight">
           {caseItem.title}
         </CardTitle>
-        <CardDescription className="flex items-center justify-between text-sm">
+        <CardDescription className="text-sm">
           <span className="flex items-center">
             <Calendar className="w-3 h-3 mr-1" />
-            工期: {caseItem.workPeriod}
+            作成: {caseItem.createdAt}
           </span>
-          <span>{caseItem.location}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
           {caseItem.description}
         </p>
         {caseItem.status === 'scheduled' && (
@@ -180,34 +179,36 @@ const Dashboard = () => {
           </div>
         )}
         {showActions && (
-          <div className="flex space-x-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             {caseItem.status === 'draft' && caseItem.afterImage && (
               <Button 
                 size="sm" 
                 onClick={() => handlePublish(caseItem.id)}
-                className="flex-1 bg-green-500 hover:bg-green-600"
+                className="w-full sm:flex-1 bg-green-500 hover:bg-green-600 h-9"
               >
                 <Share2 className="w-3 h-3 mr-1" />
-                公開
+                公開する
               </Button>
             )}
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="flex-1"
-              onClick={() => handleEdit(caseItem)}
-            >
-              <Edit className="w-3 h-3 mr-1" />
-              編集
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => handleDelete(caseItem.id)}
-              className="text-red-500 hover:text-red-600"
-            >
-              <Trash2 className="w-3 h-3" />
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="flex-1 h-9"
+                onClick={() => handleEdit(caseItem)}
+              >
+                <Edit className="w-3 h-3 mr-1" />
+                編集
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => handleDelete(caseItem.id)}
+                className="text-red-500 hover:text-red-600 h-9 px-3"
+              >
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
@@ -215,35 +216,37 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-reform-blue-50 to-reform-orange-50">
+    <div className="min-h-screen bg-gray-50">
       {/* ヘッダー */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-reform-blue-500 to-reform-orange-500 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">マイページ</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900">マイページ</h1>
                 <p className="text-xs text-gray-500">東京リフォーム株式会社</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               <Button 
                 variant="outline"
                 onClick={() => window.open('/public-cases', '_blank')}
-                className="hidden sm:inline-flex"
+                className="hidden sm:inline-flex h-9"
+                size="sm"
               >
-                <ExternalLink className="w-4 h-4 mr-2" />
+                <ExternalLink className="w-4 h-4 mr-1" />
                 事例公開ページ
               </Button>
               <Button 
                 onClick={() => setIsUploadOpen(true)}
-                className="bg-reform-orange-500 hover:bg-reform-orange-600 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white h-9"
+                size="sm"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                新規事例
+                <Plus className="w-4 h-4 mr-1" />
+                新規作成
               </Button>
             </div>
           </div>
@@ -251,50 +254,42 @@ const Dashboard = () => {
       </header>
 
       {/* メインコンテンツ */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6">
         {/* 統計情報 */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">公開済み事例</p>
-                  <p className="text-2xl font-bold text-green-600">{publishedCases.length}</p>
-                </div>
-                <Eye className="w-8 h-8 text-green-500" />
+              <div className="text-center">
+                <Eye className="w-6 h-6 mx-auto mb-1 text-green-100" />
+                <p className="text-2xl font-bold">{publishedCases.length}</p>
+                <p className="text-xs text-green-100">公開済み</p>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-gray-500 to-gray-600 text-white border-0">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">下書き</p>
-                  <p className="text-2xl font-bold text-gray-600">{draftCases.length}</p>
-                </div>
-                <Edit className="w-8 h-8 text-gray-500" />
+              <div className="text-center">
+                <Edit className="w-6 h-6 mx-auto mb-1 text-gray-100" />
+                <p className="text-2xl font-bold">{draftCases.length}</p>
+                <p className="text-xs text-gray-100">下書き</p>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">アラーム設定済み</p>
-                  <p className="text-2xl font-bold text-blue-600">{scheduledCases.length}</p>
-                </div>
-                <Clock className="w-8 h-8 text-blue-500" />
+              <div className="text-center">
+                <Clock className="w-6 h-6 mx-auto mb-1 text-blue-100" />
+                <p className="text-2xl font-bold">{scheduledCases.length}</p>
+                <p className="text-xs text-blue-100">アラーム設定</p>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">今月の問い合わせ</p>
-                  <p className="text-2xl font-bold text-reform-orange-600">12</p>
-                </div>
-                <User className="w-8 h-8 text-reform-orange-500" />
+              <div className="text-center">
+                <User className="w-6 h-6 mx-auto mb-1 text-orange-100" />
+                <p className="text-2xl font-bold">12</p>
+                <p className="text-xs text-orange-100">今月問合せ</p>
               </div>
             </CardContent>
           </Card>
@@ -308,40 +303,48 @@ const Dashboard = () => {
               placeholder="事例を検索..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-11"
             />
           </div>
         </div>
 
         {/* 事例管理タブ */}
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">すべて ({filteredCases.length})</TabsTrigger>
-            <TabsTrigger value="published">公開済み ({publishedCases.length})</TabsTrigger>
-            <TabsTrigger value="draft">下書き ({draftCases.length})</TabsTrigger>
-            <TabsTrigger value="scheduled">アラーム設定済み ({scheduledCases.length})</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="all" className="text-xs sm:text-sm">
+              すべて <span className="ml-1">({filteredCases.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="published" className="text-xs sm:text-sm">
+              公開済み <span className="ml-1 hidden sm:inline">({publishedCases.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="draft" className="text-xs sm:text-sm">
+              下書き <span className="ml-1 hidden sm:inline">({draftCases.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="scheduled" className="text-xs sm:text-sm">
+              アラーム <span className="ml-1 hidden sm:inline">({scheduledCases.length})</span>
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="all" className="mt-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <TabsContent value="all">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredCases.map(caseItem => renderCaseCard(caseItem))}
             </div>
           </TabsContent>
           
-          <TabsContent value="published" className="mt-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <TabsContent value="published">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {publishedCases.map(caseItem => renderCaseCard(caseItem))}
             </div>
           </TabsContent>
           
-          <TabsContent value="draft" className="mt-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <TabsContent value="draft">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {draftCases.map(caseItem => renderCaseCard(caseItem))}
             </div>
           </TabsContent>
           
-          <TabsContent value="scheduled" className="mt-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <TabsContent value="scheduled">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {scheduledCases.map(caseItem => renderCaseCard(caseItem))}
             </div>
           </TabsContent>
