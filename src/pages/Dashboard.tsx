@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,59 +83,6 @@ const Dashboard = () => {
       description: `${caseItem.title}がポートフォリオに追加されました`,
     });
   };
-
-  // サンプルデータ
-  const sampleCases: Case[] = [
-    {
-      id: 1,
-      title: "キッチンリフォーム事例",
-      company: "リフォーム株式会社",
-      location: "東京都",
-      category: "キッチン",
-      beforeImage: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop",
-      afterImage: "https://images.unsplash.com/photo-1556909144-f5220ba4815c?w=600&h=400&fit=crop",
-      description: "最新のシステムキッチンを導入し、収納力とデザイン性を向上させました。",
-      workPeriod: "1週間",
-      status: "published",
-      createdAt: "2024-01-01",
-      publishedAt: "2024-01-05"
-    },
-    {
-      id: 2,
-      title: "リビングリフォーム事例",
-      company: "リノベーション株式会社",
-      location: "大阪府",
-      category: "居室",
-      beforeImage: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=400&fit=crop",
-      afterImage: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
-      description: "リビングの壁紙を変更し、明るく開放的な空間を実現しました。",
-      workPeriod: "3日間",
-      status: "draft",
-      createdAt: "2024-01-03",
-      scheduledDate: "2024-02-10",
-      reminderTime: "10:00"
-    },
-    {
-      id: 3,
-      title: "浴室リフォーム事例",
-      company: "リフォーム株式会社",
-      location: "東京都",
-      category: "浴室",
-      beforeImage: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&h=400&fit=crop",
-      afterImage: "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=600&h=400&fit=crop",
-      description: "最新のユニットバスを導入し、快適なバスタイムを実現しました。",
-      workPeriod: "5日間",
-      status: "scheduled",
-      createdAt: "2024-01-05",
-      scheduledDate: "2024-02-15",
-      reminderTime: "09:00"
-    }
-  ];
-
-  // ステータスごとの事例をフィルタリング
-  const publishedCases = sampleCases.filter(caseItem => caseItem.status === 'published');
-  const draftCases = sampleCases.filter(caseItem => caseItem.status === 'draft');
-  const scheduledCases = sampleCases.filter(caseItem => caseItem.status === 'scheduled');
 
   return (
     <div className="min-h-screen bg-gray-50">
