@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Plus, ArrowRight } from "lucide-react";
+import { Camera, Plus, ArrowRight, AlarmClock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CaseUploadModalProps {
@@ -21,6 +21,8 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
     workOrder: null as File | null,
     title: '',
     description: '',
+    scheduledDate: '',
+    reminderTime: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -105,19 +107,21 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
       workOrder: null,
       title: '',
       description: '',
+      scheduledDate: '',
+      reminderTime: '',
     });
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden p-0 relative">
+      <DialogContent className="w-[95vw] max-w-md h-[95vh] overflow-hidden p-0 relative">
         {/* フローティングボタン - 上部に配置 */}
-        <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <div className="absolute top-3 right-3 z-10 flex gap-1">
           <Button 
             onClick={handlePublish}
             disabled={isLoading || !formData.title || formData.beforeImages.length === 0}
             size="sm"
-            className="rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+            className="rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-lg text-xs px-3 py-1"
           >
             公開
           </Button>
@@ -126,177 +130,210 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
             disabled={isLoading}
             variant="outline"
             size="sm"
-            className="rounded-full border-2 border-gray-400 hover:border-gray-600 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+            className="rounded-full border-2 border-gray-400 hover:border-gray-600 font-bold shadow-lg text-xs px-3 py-1"
           >
             下書き
           </Button>
         </div>
 
-        <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle className="text-xl font-bold text-center">新規事例作成</DialogTitle>
+        <DialogHeader className="p-4 pb-3 border-b">
+          <DialogTitle className="text-lg font-bold text-center pr-20">新規事例作成</DialogTitle>
         </DialogHeader>
 
-        <div className="p-6 space-y-6">
-          {/* カテゴリ選択 */}
-          <div>
-            <Select onValueChange={(value) => handleInputChange('category', value)} value={formData.category}>
-              <SelectTrigger className="w-full h-12 text-center border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
-                <SelectValue placeholder="プルダウン：カテゴリー" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="キッチン">キッチン</SelectItem>
-                <SelectItem value="浴室">浴室</SelectItem>
-                <SelectItem value="居室">居室</SelectItem>
-                <SelectItem value="外壁">外壁</SelectItem>
-                <SelectItem value="その他">その他</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 space-y-4">
+            {/* カテゴリ選択 */}
+            <div>
+              <Select onValueChange={(value) => handleInputChange('category', value)} value={formData.category}>
+                <SelectTrigger className="w-full h-12 text-center border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
+                  <SelectValue placeholder="プルダウン：カテゴリー" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="キッチン">キッチン</SelectItem>
+                  <SelectItem value="浴室">浴室</SelectItem>
+                  <SelectItem value="居室">居室</SelectItem>
+                  <SelectItem value="外壁">外壁</SelectItem>
+                  <SelectItem value="その他">その他</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* 施工前・施工後写真エリア */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* 施工前 */}
-            <div className="space-y-2">
-              <div 
-                className={`relative aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 hover:scale-105 ${
-                  formData.beforeImages.length > 0 
-                    ? 'border-blue-400 bg-blue-50' 
-                    : 'border-gray-300 bg-gray-50 hover:border-blue-300'
-                }`}
-                onClick={() => document.getElementById('beforeImages')?.click()}
-              >
-                {formData.beforeImages.length > 0 ? (
-                  <div className="relative w-full h-full rounded-lg overflow-hidden">
-                    <img 
-                      src={URL.createObjectURL(formData.beforeImages[0])} 
-                      alt="施工前" 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                      <span className="text-white font-bold">{formData.beforeImages.length}枚</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <Camera className="w-12 h-12 text-gray-400 mb-2" />
-                    <span className="text-gray-600 font-medium">施工前</span>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => handleFileUpload('beforeImages', e.target.files)}
-                  className="hidden"
-                  id="beforeImages"
-                />
-              </div>
-              {/* プラスボタン - 写真が1枚以上ある時のみ表示 */}
-              {formData.beforeImages.length > 0 && (
+            {/* 施工前・施工後写真エリア */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* 施工前 */}
+              <div className="space-y-2">
                 <div 
-                  className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-blue-500 transition-colors"
+                  className={`relative aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
+                    formData.beforeImages.length > 0 
+                      ? 'border-blue-400 bg-blue-50' 
+                      : 'border-gray-300 bg-gray-50 hover:border-blue-300'
+                  }`}
                   onClick={() => document.getElementById('beforeImages')?.click()}
                 >
-                  <Plus className="w-5 h-5 text-gray-600" />
-                </div>
-              )}
-            </div>
-
-            {/* 施工後 */}
-            <div className="space-y-2">
-              <div 
-                className={`relative aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 hover:scale-105 ${
-                  formData.afterImages.length > 0 
-                    ? 'border-green-400 bg-green-50' 
-                    : 'border-gray-300 bg-gray-50 hover:border-green-300'
-                }`}
-                onClick={() => document.getElementById('afterImages')?.click()}
-              >
-                {formData.afterImages.length > 0 ? (
-                  <div className="relative w-full h-full rounded-lg overflow-hidden">
-                    <img 
-                      src={URL.createObjectURL(formData.afterImages[0])} 
-                      alt="施工後" 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                      <span className="text-white font-bold">{formData.afterImages.length}枚</span>
+                  {formData.beforeImages.length > 0 ? (
+                    <div className="relative w-full h-full rounded-lg overflow-hidden">
+                      <img 
+                        src={URL.createObjectURL(formData.beforeImages[0])} 
+                        alt="施工前" 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">{formData.beforeImages.length}枚</span>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <Camera className="w-12 h-12 text-gray-400 mb-2" />
-                    <span className="text-gray-600 font-medium">施工後</span>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <Camera className="w-8 h-8 text-gray-400 mb-1" />
+                      <span className="text-gray-600 font-medium text-sm">施工前</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => handleFileUpload('beforeImages', e.target.files)}
+                    className="hidden"
+                    id="beforeImages"
+                  />
+                </div>
+                {/* プラスボタン - 写真が1枚以上ある時のみ表示 */}
+                {formData.beforeImages.length > 0 && (
+                  <div 
+                    className="w-8 h-8 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-blue-500 transition-colors"
+                    onClick={() => document.getElementById('beforeImages')?.click()}
+                  >
+                    <Plus className="w-4 h-4 text-gray-600" />
                   </div>
                 )}
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => handleFileUpload('afterImages', e.target.files)}
-                  className="hidden"
-                  id="afterImages"
-                />
               </div>
-              {/* プラスボタン - 写真が1枚以上ある時のみ表示 */}
-              {formData.afterImages.length > 0 && (
+
+              {/* 施工後 */}
+              <div className="space-y-2">
                 <div 
-                  className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-green-500 transition-colors"
+                  className={`relative aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
+                    formData.afterImages.length > 0 
+                      ? 'border-green-400 bg-green-50' 
+                      : 'border-gray-300 bg-gray-50 hover:border-green-300'
+                  }`}
                   onClick={() => document.getElementById('afterImages')?.click()}
                 >
-                  <Plus className="w-5 h-5 text-gray-600" />
+                  {formData.afterImages.length > 0 ? (
+                    <div className="relative w-full h-full rounded-lg overflow-hidden">
+                      <img 
+                        src={URL.createObjectURL(formData.afterImages[0])} 
+                        alt="施工後" 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">{formData.afterImages.length}枚</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <Camera className="w-8 h-8 text-gray-400 mb-1" />
+                      <span className="text-gray-600 font-medium text-sm">施工後</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => handleFileUpload('afterImages', e.target.files)}
+                    className="hidden"
+                    id="afterImages"
+                  />
                 </div>
-              )}
+                {/* プラスボタン - 写真が1枚以上ある時のみ表示 */}
+                {formData.afterImages.length > 0 && (
+                  <div 
+                    className="w-8 h-8 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-green-500 transition-colors"
+                    onClick={() => document.getElementById('afterImages')?.click()}
+                  >
+                    <Plus className="w-4 h-4 text-gray-600" />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* 工事依頼書 */}
-          <div 
-            className={`relative h-16 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 hover:scale-105 ${
-              formData.workOrder 
-                ? 'border-purple-400 bg-purple-50' 
-                : 'border-gray-300 bg-gray-50 hover:border-purple-300'
-            }`}
-            onClick={() => document.getElementById('workOrder')?.click()}
-          >
-            <div className="flex items-center justify-center h-full">
-              <Camera className="w-6 h-6 text-gray-400 mr-3" />
-              <span className="text-gray-600 font-medium">
-                {formData.workOrder ? '工事依頼書 ✓' : '工事依頼書'}
-              </span>
+            {/* 工事依頼書 */}
+            <div 
+              className={`relative h-14 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
+                formData.workOrder 
+                  ? 'border-purple-400 bg-purple-50' 
+                  : 'border-gray-300 bg-gray-50 hover:border-purple-300'
+              }`}
+              onClick={() => document.getElementById('workOrder')?.click()}
+            >
+              <div className="flex items-center justify-center h-full">
+                <Camera className="w-5 h-5 text-gray-400 mr-2" />
+                <span className="text-gray-600 font-medium text-sm">
+                  {formData.workOrder ? '工事依頼書 ✓' : '工事依頼書'}
+                </span>
+              </div>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => handleFileUpload('workOrder', e.target.files)}
+                className="hidden"
+                id="workOrder"
+              />
             </div>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFileUpload('workOrder', e.target.files)}
-              className="hidden"
-              id="workOrder"
-            />
-          </div>
 
-          {/* タイトル */}
-          <div>
-            <Input
-              value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="テキストフィールド：タイトル"
-              className="w-full h-12 text-center border-2 border-gray-300 rounded-xl bg-gray-50"
-              disabled={isLoading}
-            />
-          </div>
+            {/* アラーム設定 */}
+            <div className="space-y-3 p-3 border-2 border-dashed border-orange-300 bg-orange-50 rounded-xl">
+              <div className="flex items-center space-x-2">
+                <AlarmClock className="w-5 h-5 text-orange-600" />
+                <span className="text-orange-800 font-medium text-sm">撮影リマインダー設定</span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs text-orange-700 mb-1">予定日</label>
+                  <Input
+                    type="date"
+                    value={formData.scheduledDate}
+                    onChange={(e) => handleInputChange('scheduledDate', e.target.value)}
+                    className="w-full h-10 text-xs border border-orange-300 rounded-lg bg-white"
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-orange-700 mb-1">時間</label>
+                  <Input
+                    type="time"
+                    value={formData.reminderTime}
+                    onChange={(e) => handleInputChange('reminderTime', e.target.value)}
+                    className="w-full h-10 text-xs border border-orange-300 rounded-lg bg-white"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </div>
 
-          {/* 本文 */}
-          <div>
-            <Textarea
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="テキストフィールド：本文"
-              rows={4}
-              className="w-full border-2 border-gray-300 rounded-xl bg-gray-50 resize-none text-center pt-4"
-              disabled={isLoading}
-            />
+            {/* タイトル */}
+            <div>
+              <Input
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="テキストフィールド：タイトル"
+                className="w-full h-12 text-center border-2 border-gray-300 rounded-xl bg-gray-50"
+                disabled={isLoading}
+              />
+            </div>
+
+            {/* 本文 */}
+            <div>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="テキストフィールド：本文"
+                rows={4}
+                className="w-full border-2 border-gray-300 rounded-xl bg-gray-50 resize-none text-center pt-4"
+                disabled={isLoading}
+              />
+            </div>
           </div>
         </div>
       </DialogContent>

@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Plus, Edit, Trash2, Calendar, Eye, Clock, Building, Globe, Settings, Search } from "lucide-react";
+import { Camera, Plus, Edit, Trash2, Calendar, Eye, AlarmClock, Building, Globe, Settings, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import CaseUploadModal from "@/components/CaseUploadModal";
