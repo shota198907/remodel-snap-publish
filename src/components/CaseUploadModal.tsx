@@ -117,7 +117,7 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md h-[90vh] max-h-[600px] overflow-hidden p-0 relative">
+      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-md h-[90vh] max-h-[600px] overflow-hidden p-0 relative z-50">
         <ActionButtons
           onPublish={handlePublish}
           onSaveDraft={handleSaveDraft}
