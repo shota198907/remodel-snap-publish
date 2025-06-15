@@ -1,6 +1,4 @@
-
 import { useState } from 'react';
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import CaseUploadModal from "@/components/CaseUploadModal";
 import CaseEditModal from "@/components/CaseEditModal";
@@ -15,6 +13,7 @@ const Dashboard = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [companyProfileModalOpen, setCompanyProfileModalOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [activeTab, setActiveTab] = useState('published');
   const { toast } = useToast();
 
   // サンプルデータ
@@ -65,7 +64,6 @@ const Dashboard = () => {
     }
   ];
 
-  // ステータスごとの事例をフィルタリング
   const publishedCases = sampleCases.filter(caseItem => caseItem.status === 'published');
   const draftCases = sampleCases.filter(caseItem => caseItem.status === 'draft');
   const scheduledCases = sampleCases.filter(caseItem => caseItem.status === 'scheduled');
@@ -76,11 +74,36 @@ const Dashboard = () => {
   };
 
   const handlePublishDraft = (caseItem: Case) => {
-    // 公開処理のシミュレーション
     toast({
       title: "事例を公開しました",
       description: `${caseItem.title}がポートフォリオに追加されました`,
     });
+  };
+
+  const getCurrentCases = () => {
+    switch (activeTab) {
+      case 'published':
+        return publishedCases;
+      case 'drafts':
+        return draftCases;
+      case 'scheduled':
+        return scheduledCases;
+      default:
+        return publishedCases;
+    }
+  };
+
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case 'published':
+        return '公開済み事例';
+      case 'drafts':
+        return '下書き事例';
+      case 'scheduled':
+        return '予約投稿事例';
+      default:
+        return '事例一覧';
+    }
   };
 
   return (
@@ -90,41 +113,48 @@ const Dashboard = () => {
         onCompanyProfile={() => setCompanyProfileModalOpen(true)}
       />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
         <StatsCards
           publishedCount={publishedCases.length}
           draftCount={draftCases.length}
           scheduledCount={scheduledCases.length}
           monthlyCount={3}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
         />
 
-        <Tabs defaultValue="published" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="published">公開済み</TabsTrigger>
-            <TabsTrigger value="drafts">下書き</TabsTrigger>
-            <TabsTrigger value="scheduled">予約投稿</TabsTrigger>
-          </TabsList>
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">{getTabTitle()}</h2>
+            <div className="text-sm text-gray-500">
+              {getCurrentCases().length}件
+            </div>
+          </div>
 
-          <CaseTabContent
-            value="published"
-            cases={publishedCases}
-            onEdit={handleEditCase}
-          />
-
-          <CaseTabContent
-            value="drafts"
-            cases={draftCases}
-            onEdit={handleEditCase}
-            onPublish={handlePublishDraft}
-            showPublishButton={true}
-          />
-
-          <CaseTabContent
-            value="scheduled"
-            cases={scheduledCases}
-            onEdit={handleEditCase}
-          />
-        </Tabs>
+          <div className="space-y-3 sm:space-y-4">
+            {getCurrentCases().map((caseItem) => (
+              <CaseTabContent
+                key={caseItem.id}
+                value={activeTab}
+                cases={[caseItem]}
+                onEdit={handleEditCase}
+                onPublish={activeTab === 'drafts' ? handlePublishDraft : undefined}
+                showPublishButton={activeTab === 'drafts'}
+              />
+            ))}
+            
+            {getCurrentCases().length === 0 && (
+              <div className="text-center py-8 sm:py-12">
+                <div className="text-gray-400 text-4xl sm:text-6xl mb-4">📝</div>
+                <p className="text-gray-500 text-sm sm:text-base">
+                  {activeTab === 'published' && '公開済みの事例がありません'}
+                  {activeTab === 'drafts' && '下書きの事例がありません'}
+                  {activeTab === 'scheduled' && '予約投稿の事例がありません'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
 
       <CaseUploadModal
