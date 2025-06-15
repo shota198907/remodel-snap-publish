@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Clock, Calendar, User, MessageCircle, Image, Plus } from "lucide-react";
+import { Camera, Clock, Calendar, User, MessageCircle, Image, Plus, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
 import LoginModal from '@/components/LoginModal';
@@ -19,7 +19,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // サンプル事例データ
+  // サンプル事例データ（デモ画像付き）
   const sampleCases = [
     {
       id: 1,
@@ -27,8 +27,8 @@ const Index = () => {
       company: "東京リフォーム株式会社",
       location: "東京都世田谷区",
       category: "キッチン",
-      beforeImage: "/placeholder.svg",
-      afterImage: "/placeholder.svg",
+      beforeImage: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
+      afterImage: "https://images.unsplash.com/photo-1556909144-f5220ba4815c?w=400&h=300&fit=crop",
       description: "築30年のマンションキッチンを最新設備で一新。収納力アップと清掃性を重視した設計。",
       workPeriod: "5日間",
       createdAt: "2024-01-15"
@@ -39,8 +39,8 @@ const Index = () => {
       company: "関西建築工房",
       location: "大阪府大阪市",
       category: "居室",
-      beforeImage: "/placeholder.svg",
-      afterImage: "/placeholder.svg",
+      beforeImage: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+      afterImage: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
       description: "伝統的な和室を現代的な洋室に変更。フローリング・クロス・照明すべて新調。",
       workPeriod: "7日間",
       createdAt: "2024-01-10"
@@ -51,8 +51,8 @@ const Index = () => {
       company: "九州住宅改修センター",
       location: "福岡県福岡市",
       category: "浴室",
-      beforeImage: "/placeholder.svg",
-      afterImage: "/placeholder.svg",
+      beforeImage: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400&h=300&fit=crop",
+      afterImage: "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=400&h=300&fit=crop",
       description: "高齢者対応のバリアフリー浴室。手すり・段差解消・滑り止め加工を施工。",
       workPeriod: "4日間",
       createdAt: "2024-01-08"
@@ -95,6 +95,14 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <Button 
+                variant="outline"
+                onClick={() => window.open('/public-cases', '_blank')}
+                className="hidden sm:inline-flex"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                事例公開ページ
+              </Button>
               <Button 
                 variant="outline" 
                 onClick={() => setIsLoginOpen(true)}
@@ -308,7 +316,6 @@ const Index = () => {
         isOpen={isRegisterOpen} 
         onClose={() => setIsRegisterOpen(false)}
         onLoginClick={handleLoginClick}
-        onRegisterSuccess={handleLoginSuccess}
       />
       <CaseUploadModal 
         isOpen={isUploadOpen} 

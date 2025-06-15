@@ -5,25 +5,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Clock, Calendar, User, Edit, Eye, Share2, Trash2, Plus, Search } from "lucide-react";
+import { Camera, Clock, Calendar, User, Edit, Eye, Share2, Trash2, Plus, Search, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import CaseUploadModal from '@/components/CaseUploadModal';
+import CaseEditModal from '@/components/CaseEditModal';
+import { Case } from '@/types/case';
 
 const Dashboard = () => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingCase, setEditingCase] = useState<Case | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
-  // サンプル事例データ（公開済み・下書き・アラーム設定済み）
-  const [cases, setCases] = useState([
+  // サンプル事例データ（デモ画像付き）
+  const [cases, setCases] = useState<Case[]>([
     {
       id: 1,
       title: "キッチン全面リフォーム：機能性とデザイン性を両立",
       company: "東京リフォーム株式会社",
       location: "東京都世田谷区",
       category: "キッチン",
-      beforeImage: "/placeholder.svg",
-      afterImage: "/placeholder.svg",
+      beforeImage: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
+      afterImage: "https://images.unsplash.com/photo-1556909144-f5220ba4815c?w=400&h=300&fit=crop",
       description: "築30年のマンションキッチンを最新設備で一新。収納力アップと清掃性を重視した設計。",
       workPeriod: "5日間",
       status: "published",
@@ -36,7 +40,7 @@ const Dashboard = () => {
       company: "東京リフォーム株式会社",
       location: "大阪府大阪市",
       category: "居室",
-      beforeImage: "/placeholder.svg",
+      beforeImage: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
       afterImage: null,
       description: "伝統的な和室を現代的な洋室に変更。フローリング・クロス・照明すべて新調予定。",
       workPeriod: "7日間",
@@ -51,8 +55,8 @@ const Dashboard = () => {
       company: "東京リフォーム株式会社",
       location: "福岡県福岡市",
       category: "浴室",
-      beforeImage: "/placeholder.svg",
-      afterImage: "/placeholder.svg",
+      beforeImage: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400&h=300&fit=crop",
+      afterImage: "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=400&h=300&fit=crop",
       description: "高齢者対応のバリアフリー浴室。手すり・段差解消・滑り止め加工を施工完了。内容確認中。",
       workPeriod: "4日間",
       status: "draft",
@@ -68,7 +72,7 @@ const Dashboard = () => {
   const handlePublish = (id: number) => {
     setCases(prev => prev.map(c => 
       c.id === id 
-        ? { ...c, status: 'published', publishedAt: new Date().toISOString().split('T')[0] }
+        ? { ...c, status: 'published' as const, publishedAt: new Date().toISOString().split('T')[0] }
         : c
     ));
     toast({
@@ -83,6 +87,15 @@ const Dashboard = () => {
       title: "事例を削除しました",
       description: "削除した事例は復元できません",
     });
+  };
+
+  const handleEdit = (caseItem: Case) => {
+    setEditingCase(caseItem);
+    setIsEditOpen(true);
+  };
+
+  const handleSaveEdit = (updatedCase: Case) => {
+    setCases(prev => prev.map(c => c.id === updatedCase.id ? updatedCase : c));
   };
 
   const getStatusBadge = (status: string) => {
@@ -102,7 +115,7 @@ const Dashboard = () => {
   const draftCases = filteredCases.filter(c => c.status === 'draft');
   const scheduledCases = filteredCases.filter(c => c.status === 'scheduled');
 
-  const renderCaseCard = (caseItem: any, showActions = true) => (
+  const renderCaseCard = (caseItem: Case, showActions = true) => (
     <Card key={caseItem.id} className="overflow-hidden hover:shadow-lg transition-all duration-300">
       <div className="relative">
         <div className="grid grid-cols-2 h-32">
@@ -178,7 +191,12 @@ const Dashboard = () => {
                 公開
               </Button>
             )}
-            <Button size="sm" variant="outline" className="flex-1">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="flex-1"
+              onClick={() => handleEdit(caseItem)}
+            >
               <Edit className="w-3 h-3 mr-1" />
               編集
             </Button>
@@ -212,6 +230,14 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <Button 
+                variant="outline"
+                onClick={() => window.open('/public-cases', '_blank')}
+                className="hidden sm:inline-flex"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                事例公開ページ
+              </Button>
               <Button 
                 onClick={() => setIsUploadOpen(true)}
                 className="bg-reform-orange-500 hover:bg-reform-orange-600 text-white"
@@ -331,10 +357,16 @@ const Dashboard = () => {
         )}
       </main>
 
-      {/* 事例投稿モーダル */}
+      {/* モーダル */}
       <CaseUploadModal 
         isOpen={isUploadOpen} 
         onClose={() => setIsUploadOpen(false)}
+      />
+      <CaseEditModal 
+        isOpen={isEditOpen} 
+        onClose={() => setIsEditOpen(false)}
+        case={editingCase}
+        onSave={handleSaveEdit}
       />
     </div>
   );
