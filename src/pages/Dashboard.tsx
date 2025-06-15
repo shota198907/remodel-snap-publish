@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Plus, Edit, Trash2, Calendar, Eye, Clock, Building, Globe, Settings } from "lucide-react";
+import { Camera, Plus, Edit, Trash2, Calendar, Eye, Clock, Building, Globe, Settings, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 import CaseUploadModal from "@/components/CaseUploadModal";
 import CaseEditModal from "@/components/CaseEditModal";
 import CompanyProfileModal from "@/components/CompanyProfileModal";
@@ -99,6 +100,16 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <Button
+                asChild
+                variant="outline"
+                className="flex items-center space-x-2"
+              >
+                <Link to="/portal">
+                  <Search className="w-4 h-4" />
+                  <span className="hidden sm:inline">ポータル</span>
+                </Link>
+              </Button>
               <Button
                 variant="outline"
                 onClick={() => setCompanyProfileModalOpen(true)}
