@@ -1,15 +1,13 @@
 
 import { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Plus, Edit, Trash2, Calendar, Eye, AlarmClock, Building, Globe, Settings, Search } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
 import CaseUploadModal from "@/components/CaseUploadModal";
 import CaseEditModal from "@/components/CaseEditModal";
 import CompanyProfileModal from "@/components/CompanyProfileModal";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import StatsCards from "@/components/dashboard/StatsCards";
+import CaseTabContent from "@/components/dashboard/CaseTabContent";
 import { Case } from "@/types/case";
 
 const Dashboard = () => {
@@ -87,94 +85,18 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Camera className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">マイページ</h1>
-                <p className="text-sm text-gray-500">事例管理ダッシュボード</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button
-                asChild
-                variant="outline"
-                className="flex items-center space-x-2"
-              >
-                <Link to="/portal">
-                  <Search className="w-4 h-4" />
-                  <span className="hidden sm:inline">ポータル</span>
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setCompanyProfileModalOpen(true)}
-                className="flex items-center space-x-2"
-              >
-                <Building className="w-4 h-4" />
-                <span className="hidden sm:inline">会社情報</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => window.open('/public-cases', '_blank')}
-                className="flex items-center space-x-2"
-              >
-                <Globe className="w-4 h-4" />
-                <span className="hidden sm:inline">公開ページ</span>
-              </Button>
-              <Button 
-                onClick={() => setUploadModalOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>新規作成</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        onNewCase={() => setUploadModalOpen(true)}
+        onCompanyProfile={() => setCompanyProfileModalOpen(true)}
+      />
 
       <main className="container mx-auto px-4 py-6">
-        {/* 統計カード */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <p className="text-blue-100 text-xs mb-1">公開済み</p>
-                <p className="text-2xl font-bold">{publishedCases.length}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <p className="text-orange-100 text-xs mb-1">下書き</p>
-                <p className="text-2xl font-bold">{draftCases.length}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <p className="text-purple-100 text-xs mb-1">予約投稿</p>
-                <p className="text-2xl font-bold">{scheduledCases.length}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <p className="text-green-100 text-xs mb-1">今月追加</p>
-                <p className="text-2xl font-bold">3</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <StatsCards
+          publishedCount={publishedCases.length}
+          draftCount={draftCases.length}
+          scheduledCount={scheduledCases.length}
+          monthlyCount={3}
+        />
 
         <Tabs defaultValue="published" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
@@ -183,155 +105,25 @@ const Dashboard = () => {
             <TabsTrigger value="scheduled">予約投稿</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="published" className="space-y-4">
-            {publishedCases.map((caseItem) => (
-              <Card key={caseItem.id} className="overflow-hidden">
-                <div className="md:flex">
-                  <div className="md:w-48 h-32 md:h-auto">
-                    <div className="grid grid-cols-2 h-full">
-                      <img src={caseItem.beforeImage} alt="施工前" className="w-full h-full object-cover" />
-                      <img src={caseItem.afterImage!} alt="施工後" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                  <div className="flex-1 p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">{caseItem.title}</h3>
-                          <Badge className="bg-green-100 text-green-800">{caseItem.category}</Badge>
-                        </div>
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-2">{caseItem.description}</p>
-                        <div className="flex items-center text-xs text-gray-500 space-x-4">
-                          <span className="flex items-center">
-                            <Calendar className="w-3 h-3 mr-1" />
-                            公開: {caseItem.publishedAt}
-                          </span>
-                          <span className="flex items-center">
-                            <Eye className="w-3 h-3 mr-1" />
-                            公開中
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditCase(caseItem)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </TabsContent>
+          <CaseTabContent
+            value="published"
+            cases={publishedCases}
+            onEdit={handleEditCase}
+          />
 
-          <TabsContent value="drafts" className="space-y-4">
-            {draftCases.map((caseItem) => (
-              <Card key={caseItem.id} className="overflow-hidden">
-                <div className="md:flex">
-                  <div className="md:w-48 h-32 md:h-auto">
-                    <div className="grid grid-cols-2 h-full">
-                      <img src={caseItem.beforeImage} alt="施工前" className="w-full h-full object-cover" />
-                      <div className="bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500 text-xs">アフター未登録</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex-1 p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">{caseItem.title}</h3>
-                          <Badge variant="secondary">{caseItem.category}</Badge>
-                        </div>
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-2">{caseItem.description}</p>
-                        <div className="flex items-center text-xs text-gray-500 space-x-4">
-                          <span className="flex items-center">
-                            <Calendar className="w-3 h-3 mr-1" />
-                            作成: {caseItem.createdAt}
-                          </span>
-                          <Badge variant="outline" className="text-xs">下書き</Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handlePublishDraft(caseItem)}
-                          className="text-green-600 border-green-600 hover:bg-green-50"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditCase(caseItem)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </TabsContent>
+          <CaseTabContent
+            value="drafts"
+            cases={draftCases}
+            onEdit={handleEditCase}
+            onPublish={handlePublishDraft}
+            showPublishButton={true}
+          />
 
-          <TabsContent value="scheduled" className="space-y-4">
-            {scheduledCases.map((caseItem) => (
-              <Card key={caseItem.id} className="overflow-hidden">
-                <div className="md:flex">
-                  <div className="md:w-48 h-32 md:h-auto">
-                    <div className="grid grid-cols-2 h-full">
-                      <img src={caseItem.beforeImage} alt="施工前" className="w-full h-full object-cover" />
-                      <div className="bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500 text-xs">予約投稿</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex-1 p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">{caseItem.title}</h3>
-                          <Badge variant="secondary">{caseItem.category}</Badge>
-                        </div>
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-2">{caseItem.description}</p>
-                        <div className="flex items-center text-xs text-gray-500 space-x-4">
-                          <span className="flex items-center">
-                            <Clock className="w-3 h-3 mr-1" />
-                            予定: {caseItem.scheduledDate}
-                          </span>
-                          <Badge variant="outline" className="text-xs">予約中</Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditCase(caseItem)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </TabsContent>
+          <CaseTabContent
+            value="scheduled"
+            cases={scheduledCases}
+            onEdit={handleEditCase}
+          />
         </Tabs>
       </main>
 
