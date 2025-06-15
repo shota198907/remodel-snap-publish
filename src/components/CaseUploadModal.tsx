@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Plus, ArrowRight, AlarmClock } from "lucide-react";
+import { Camera, Plus, AlarmClock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CaseUploadModalProps {
@@ -114,14 +114,14 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md h-[95vh] overflow-hidden p-0 relative">
-        {/* フローティングボタン - 上部に配置 */}
-        <div className="absolute top-3 right-3 z-10 flex gap-1">
+      <DialogContent className="w-[95vw] max-w-md h-[90vh] max-h-[600px] overflow-hidden p-0 relative">
+        {/* Action Buttons - Fixed at top */}
+        <div className="absolute top-2 right-2 z-20 flex gap-1">
           <Button 
             onClick={handlePublish}
             disabled={isLoading || !formData.title || formData.beforeImages.length === 0}
             size="sm"
-            className="rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-lg text-xs px-3 py-1"
+            className="rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-lg text-xs px-3 py-1 h-8"
           >
             公開
           </Button>
@@ -130,25 +130,27 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
             disabled={isLoading}
             variant="outline"
             size="sm"
-            className="rounded-full border-2 border-gray-400 hover:border-gray-600 font-bold shadow-lg text-xs px-3 py-1"
+            className="rounded-full border-2 border-gray-400 hover:border-gray-600 font-bold shadow-lg text-xs px-3 py-1 h-8"
           >
             下書き
           </Button>
         </div>
 
-        <DialogHeader className="p-4 pb-3 border-b">
-          <DialogTitle className="text-lg font-bold text-center pr-20">新規事例作成</DialogTitle>
+        {/* Header */}
+        <DialogHeader className="p-3 pb-2 border-b bg-white relative z-10">
+          <DialogTitle className="text-lg font-bold text-center pr-16">新規事例作成</DialogTitle>
         </DialogHeader>
 
+        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
-            {/* カテゴリ選択 */}
+          <div className="p-3 space-y-4">
+            {/* Category Selection */}
             <div>
               <Select onValueChange={(value) => handleInputChange('category', value)} value={formData.category}>
-                <SelectTrigger className="w-full h-12 text-center border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
-                  <SelectValue placeholder="プルダウン：カテゴリー" />
+                <SelectTrigger className="w-full h-12 text-center border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 focus:border-blue-400 focus:bg-blue-50">
+                  <SelectValue placeholder="カテゴリーを選択" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50">
                   <SelectItem value="キッチン">キッチン</SelectItem>
                   <SelectItem value="浴室">浴室</SelectItem>
                   <SelectItem value="居室">居室</SelectItem>
@@ -158,15 +160,15 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
               </Select>
             </div>
 
-            {/* 施工前・施工後写真エリア */}
+            {/* Before/After Images Grid */}
             <div className="grid grid-cols-2 gap-3">
-              {/* 施工前 */}
+              {/* Before Images */}
               <div className="space-y-2">
                 <div 
                   className={`relative aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
                     formData.beforeImages.length > 0 
                       ? 'border-blue-400 bg-blue-50' 
-                      : 'border-gray-300 bg-gray-50 hover:border-blue-300'
+                      : 'border-gray-300 bg-gray-50 hover:border-blue-300 hover:bg-blue-25'
                   }`}
                   onClick={() => document.getElementById('beforeImages')?.click()}
                 >
@@ -197,7 +199,6 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
                     id="beforeImages"
                   />
                 </div>
-                {/* プラスボタン - 写真が1枚以上ある時のみ表示 */}
                 {formData.beforeImages.length > 0 && (
                   <div 
                     className="w-8 h-8 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-blue-500 transition-colors"
@@ -208,13 +209,13 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
                 )}
               </div>
 
-              {/* 施工後 */}
+              {/* After Images */}
               <div className="space-y-2">
                 <div 
                   className={`relative aspect-square rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
                     formData.afterImages.length > 0 
                       ? 'border-green-400 bg-green-50' 
-                      : 'border-gray-300 bg-gray-50 hover:border-green-300'
+                      : 'border-gray-300 bg-gray-50 hover:border-green-300 hover:bg-green-25'
                   }`}
                   onClick={() => document.getElementById('afterImages')?.click()}
                 >
@@ -245,7 +246,6 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
                     id="afterImages"
                   />
                 </div>
-                {/* プラスボタン - 写真が1枚以上ある時のみ表示 */}
                 {formData.afterImages.length > 0 && (
                   <div 
                     className="w-8 h-8 rounded-full border-2 border-gray-400 flex items-center justify-center mx-auto cursor-pointer hover:border-green-500 transition-colors"
@@ -257,12 +257,12 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
               </div>
             </div>
 
-            {/* 工事依頼書 */}
+            {/* Work Order Upload */}
             <div 
-              className={`relative h-14 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
+              className={`relative h-12 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
                 formData.workOrder 
                   ? 'border-purple-400 bg-purple-50' 
-                  : 'border-gray-300 bg-gray-50 hover:border-purple-300'
+                  : 'border-gray-300 bg-gray-50 hover:border-purple-300 hover:bg-purple-25'
               }`}
               onClick={() => document.getElementById('workOrder')?.click()}
             >
@@ -281,7 +281,7 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
               />
             </div>
 
-            {/* アラーム設定 */}
+            {/* Alarm Setting Section */}
             <div className="space-y-3 p-3 border-2 border-dashed border-orange-300 bg-orange-50 rounded-xl">
               <div className="flex items-center space-x-2">
                 <AlarmClock className="w-5 h-5 text-orange-600" />
@@ -290,50 +290,53 @@ const CaseUploadModal = ({ isOpen, onClose }: CaseUploadModalProps) => {
               
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs text-orange-700 mb-1">予定日</label>
+                  <label className="block text-xs text-orange-700 mb-1 font-medium">予定日</label>
                   <Input
                     type="date"
                     value={formData.scheduledDate}
                     onChange={(e) => handleInputChange('scheduledDate', e.target.value)}
-                    className="w-full h-10 text-xs border border-orange-300 rounded-lg bg-white"
+                    className="w-full h-9 text-xs border border-orange-300 rounded-lg bg-white focus:border-orange-400 focus:ring-1 focus:ring-orange-400"
                     disabled={isLoading}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-orange-700 mb-1">時間</label>
+                  <label className="block text-xs text-orange-700 mb-1 font-medium">時間</label>
                   <Input
                     type="time"
                     value={formData.reminderTime}
                     onChange={(e) => handleInputChange('reminderTime', e.target.value)}
-                    className="w-full h-10 text-xs border border-orange-300 rounded-lg bg-white"
+                    className="w-full h-9 text-xs border border-orange-300 rounded-lg bg-white focus:border-orange-400 focus:ring-1 focus:ring-orange-400"
                     disabled={isLoading}
                   />
                 </div>
               </div>
             </div>
 
-            {/* タイトル */}
+            {/* Title Input */}
             <div>
               <Input
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder="テキストフィールド：タイトル"
-                className="w-full h-12 text-center border-2 border-gray-300 rounded-xl bg-gray-50"
+                placeholder="事例タイトルを入力"
+                className="w-full h-12 text-center border-2 border-gray-300 rounded-xl bg-gray-50 focus:border-blue-400 focus:bg-blue-50 placeholder:text-gray-500"
                 disabled={isLoading}
               />
             </div>
 
-            {/* 本文 */}
+            {/* Description Textarea */}
             <div>
               <Textarea
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="テキストフィールド：本文"
+                placeholder="施工内容の詳細を入力"
                 rows={4}
-                className="w-full border-2 border-gray-300 rounded-xl bg-gray-50 resize-none text-center pt-4"
+                className="w-full border-2 border-gray-300 rounded-xl bg-gray-50 resize-none text-center pt-4 focus:border-blue-400 focus:bg-blue-50 placeholder:text-gray-500"
                 disabled={isLoading}
               />
             </div>
+
+            {/* Bottom padding for scroll */}
+            <div className="h-4"></div>
           </div>
         </div>
       </DialogContent>
