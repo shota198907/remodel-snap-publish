@@ -94,6 +94,19 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    /* モバイルファーストの設計 */
+    overflow-x: hidden;
+  }
+
+  /* モバイルでのタップハイライト無効化 */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* スマホでのスクロール最適化 */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -107,4 +120,49 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
+
+  /* モバイル対応のコンテナークラス */
+  .mobile-container {
+    @apply w-full max-w-none mx-auto px-3 sm:px-4 md:px-6 lg:px-8;
+  }
+
+  /* モバイル対応のグリッドクラス */
+  .mobile-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6;
+  }
+
+  /* モバイル対応のテキストサイズ */
+  .mobile-text {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+
+  /* モバイル対応のボタン */
+  .mobile-button {
+    @apply h-10 sm:h-11 md:h-12 px-3 sm:px-4 md:px-6 text-sm sm:text-base;
+  }
+
+  /* スマホでのタッチターゲット最適化 */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+}
+
+/* レスポンシブなフォントサイズ */
+@layer utilities {
+  .text-responsive-xs { @apply text-xs sm:text-sm; }
+  .text-responsive-sm { @apply text-sm sm:text-base; }
+  .text-responsive-base { @apply text-base sm:text-lg; }
+  .text-responsive-lg { @apply text-lg sm:text-xl; }
+  .text-responsive-xl { @apply text-xl sm:text-2xl; }
+  .text-responsive-2xl { @apply text-2xl sm:text-3xl; }
+}
+
+/* モバイル用のスペーシング */
+@layer utilities {
+  .p-responsive { @apply p-3 sm:p-4 md:p-6; }
+  .px-responsive { @apply px-3 sm:px-4 md:px-6; }
+  .py-responsive { @apply py-3 sm:py-4 md:py-6; }
+  .m-responsive { @apply m-3 sm:m-4 md:m-6; }
+  .mx-responsive { @apply mx-3 sm:mx-4 md:mx-6; }
+  .my-responsive { @apply my-3 sm:my-4 md:my-6; }
 }
