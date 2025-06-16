@@ -1,5 +1,4 @@
 
-import { TabsContent } from "@/components/ui/tabs";
 import CaseCard from "./CaseCard";
 import { Case } from "@/types/case";
 
@@ -13,7 +12,7 @@ interface CaseTabContentProps {
 
 const CaseTabContent = ({ value, cases, onEdit, onPublish, showPublishButton = false }: CaseTabContentProps) => {
   return (
-    <TabsContent value={value} className="space-y-4">
+    <div className="space-y-4">
       {cases.map((caseItem) => (
         <CaseCard
           key={caseItem.id}
@@ -23,7 +22,7 @@ const CaseTabContent = ({ value, cases, onEdit, onPublish, showPublishButton = f
           showPublishButton={showPublishButton}
         />
       ))}
-    </TabsContent>
+    </div>
   );
 };
 
